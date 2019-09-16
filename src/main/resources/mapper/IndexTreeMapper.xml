@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ysd.crm.dao.IndexTreeMapper">
+    
+    <select id="selectEmployeeAllModules" parameterType="employee" resultType="modules">
+        select distinct m.m_id,m.m_name,m.m_parentId,m.m_path,m.m_weight 
+        from employee e inner join employeerole er on e.e_id = er.e_id inner join role r on er.r_id = r.r_id inner join rolemodules rm on r.r_id = rm.r_id
+        inner join modules m on rm.m_id = m.m_id where e.e_loginName = #{e_loginName}
+    </select>
+    
+    <select id="selectProtectMTelByLoginName" parameterType="employee" resultType="string">
+        select e_protectMTel from employee where e_loginName = #{e_loginName}
+    </select>
+    
+    <select id="selectFingerprintNumByLoginName" parameterType="employee" resultType="string">
+        select e_fingerprintNum from employee where e_loginName = #{e_loginName}
+    </select>
+    
+    <select id="selectIsOldPasswordSame" parameterType="employee" resultType="_int">
+        select count(1) from employee where e_passWord = #{e_passWord} and e_loginName = #{e_loginName}
+    </select>
+    
+    <update id="updatePasswordByLoginName" parameterType="employee">
+        update employee set e_passWord = #{e_passWord} where e_loginName = #{e_loginName}
+    </update>
+    
+</mapper>

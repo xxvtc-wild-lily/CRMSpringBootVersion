@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.ysd.crm.dao.StudentMapper">
+    
+	<resultMap type="student" id="resultStu">
+		<id column="s_id" property="s_id"/>
+		<result column="s_name" property="s_name"/>
+		<result column="s_age" property="s_age"/>
+		<result column="s_sex" property="s_sex"/>
+		<result column="s_phone" property="s_phone"/>
+		<result column="s_eduStatus" property="s_eduStatus"/>
+		<result column="s_perStatus" property="s_perStatus"/>
+		<result column="s_comeWay" property="s_comeWay"/>
+		<result column="s_comeSite" property="s_comeSite"/>
+		<result column="s_sourceKeyWord" property="s_sourceKeyWord"/>
+		<result column="s_address" property="s_address"/>
+		<result column="s_QQ" property="s_QQ"/>
+		<result column="s_weiXin" property="s_weiXin"/>
+		<result column="s_remarks" property="s_remarks"/>
+		<result column="s_createTime" property="s_createTime"/>
+		<result column="s_learnForward" property="s_learnForward"/>
+		<result column="s_isValid" property="s_isValid"/>
+		<result column="s_record" property="s_record"/>
+		<result column="s_isReturnVisit" property="s_isReturnVisit"/>
+		<result column="s_firstVisitTime" property="s_firstVisitTime"/>
+		<result column="s_isHome" property="s_isHome"/>
+		<result column="s_homeTime" property="s_homeTime"/>
+		<result column="s_lostReason" property="s_lostReason"/>
+		<result column="s_isPay" property="s_isPay"/>
+		<result column="s_payTime" property="s_payTime"/>
+		<result column="s_payMoney" property="s_payMoney"/>
+		<result column="s_isReturnMoney" property="s_isReturnMoney"/>
+		<result column="s_isInClass" property="s_isInClass"/>
+		<result column="s_inClassTime" property="s_inClassTime"/>
+		<result column="s_inClassRemarks" property="s_inClassRemarks"/>
+		<result column="s_askerRemarks" property="s_askerRemarks"/>
+		<result column="s_fromPart" property="s_fromPart"/>
+		<result column="s_focus" property="s_focus"/>
+		<result column="s_isReport" property="s_isReport"/>
+		<result column="s_importEmployee" property="s_importEmployee"/>
+		<result column="s_returnMoneyReason" property="s_returnMoneyReason"/>
+		<result column="s_preMoney" property="s_preMoney"/>
+		<result column="s_preMoneyTime" property="s_preMoneyTime"/>
+		<result column="s_ext1" property="s_ext1"/>
+		<result column="s_ext2" property="s_ext2"/>
+		<result column="s_ext3" property="s_ext3"/>
+		<result column="s_ext4" property="s_ext4"/>
+		<result column="s_ext5" property="s_ext5"/>
+		<result column="s_ext6" property="s_ext6"/>
+		<result column="a_id" property="asker.a_id"/>
+		<result column="a_name" property="asker.a_name"/>
+	</resultMap>
+	
+	<select id="selectIsAskerManager" parameterType="pagination" resultType="_int">
+	   select a.a_id from asker a where a.a_name = #{e_name}
+	</select>
+	
+	<select id="selectAskerRoleNameByAid" parameterType="_int" resultType="string">
+	   select a.a_roleName from asker a where a.a_id = #{a_aid}
+	</select>
+	
+	<select id="selectStudentByRole" parameterType="pagination" resultMap="resultStu">
+
+	  	select s.*,a.a_name from student s inner join asker a on
+
+		<if test="e_importEmployee == '咨询师'">
+	    	s.s_askerid = a.a_id where a.a_id = #{a_aid}
+	    </if>
+       
+		<if test="e_importEmployee == '网络咨询师'">
+		    s.s_importEmployee = a.a_name where a.a_name = #{e_name}
+		</if>
+
+            <if test="student.s_id != null and student.s_id != ''">
+                and s.s_id =#{student.s_id}
+            </if>
+            <if test=" student.s_name != null and student.s_name != ''">
+                and s.s_name like "%"#{student.s_name}"%"
+            </if>
+            <if test="student.s_phone != null and student.s_phone != ''">
+                and s.s_phone like "%"#{student.s_phone}"%"
+            </if>
+            <if test="asker != null ">
+                <if test="asker.a_name != null and asker.a_name != ''">
+                    and a.a_name like "%"#{asker.a_name}"%"
+                </if>
+            </if>
+            <if test="student.s_isPay != null">
+                and s.s_isPay =#{student.s_isPay}
+            </if>
+            <if test="student.s_isValid != null">
+                and s.s_isValid =#{student.s_isValid}
+            </if>
+            <if test="student.s_isReturnVisit != null and student.s_isReturnVisit != ''">
+                and s.s_isReturnVisit =#{student.s_isReturnVisit}
+            </if>
+            <if test=" student.s_QQ != null and student.s_QQ != ''">
+                and s.s_QQ like "%"#{student.s_QQ}"%"
+            </if>
+            <if test="in_s_createTime != null and in_s_createTime != '' and en_s_createTime != null and en_s_createTime != ''">
+				and s.s_createTime between #{in_s_createTime} and #{en_s_createTime}
+			</if>
+			order by s.s_createTime desc
+        limit #{page},#{pageSize}
+	</select>
+	
+	<select id="selectStudentCountByRole" parameterType="pagination" resultType="_int">
+
+       select count(1) from student s inner join asker a on		
+	   <if test="e_importEmployee == '咨询师'">
+           s.s_askerid = a.a_id where a.a_id = #{a_aid}
+       </if>
+       
+	   <if test="e_importEmployee == '网络咨询师'">
+	       s.s_importEmployee = a.a_name where a.a_name = #{e_name}
+	   </if>
+            <if test="student.s_id != null and student.s_id != ''">
+                and s.s_id =#{student.s_id}
+            </if>
+            <if test=" student.s_name != null and student.s_name != ''">
+                and s.s_name like "%"#{student.s_name}"%"
+            </if>
+            <if test="student.s_phone != null and student.s_phone != ''">
+                and s.s_phone like "%"#{student.s_phone}"%"
+            </if>
+            <if test="asker != null ">
+                <if test="asker.a_name != null and asker.a_name != ''">
+                    and a.a_name like "%"#{asker.a_name}"%"
+                </if>
+            </if>
+            <if test="student.s_isPay != null">
+                and s.s_isPay =#{student.s_isPay}
+            </if>
+            <if test="student.s_isValid != null">
+                and s.s_isValid =#{student.s_isValid}
+            </if>
+            <if test="student.s_isReturnVisit != null and student.s_isReturnVisit != ''">
+                and s.s_isReturnVisit =#{student.s_isReturnVisit}
+            </if>
+            <if test=" student.s_QQ != null and student.s_QQ != ''">
+                and s.s_QQ like "%"#{student.s_QQ}"%"
+            </if>
+           	<if test="in_s_createTime != null and in_s_createTime != '' and en_s_createTime != null and en_s_createTime != ''">
+				and s.s_createTime between #{in_s_createTime} and #{en_s_createTime}
+			</if>
+			
+
+    </select>
+	
+	<select id="selectStudentAll" parameterType="pagination" resultMap="resultStu">
+		select s.*,a.a_name from student s left join asker a on s.s_askerId=a.a_id
+		<where>
+			<if test="student.s_id != null and student.s_id != ''">
+				and s.s_id =#{student.s_id}
+			</if>
+			<if test=" student.s_name != null and student.s_name != ''">
+				and s.s_name like "%"#{student.s_name}"%"
+			</if>
+			<if test="student.s_phone != null and student.s_phone != ''">
+				and s.s_phone like "%"#{student.s_phone}"%"
+			</if>
+			<if test="asker != null ">
+				<if test="asker.a_name != null and asker.a_name != ''">
+					and a.a_name like "%"#{asker.a_name}"%"
+				</if>
+			</if>
+			<if test="student.s_isPay != null">
+				and s.s_isPay =#{student.s_isPay}
+			</if>
+			<if test="student.s_isValid != null">
+				and s.s_isValid =#{student.s_isValid}
+			</if>
+			<if test="student.s_isReturnVisit != null and student.s_isReturnVisit != ''">
+				and s.s_isReturnVisit =#{student.s_isReturnVisit}
+			</if>
+			<if test=" student.s_QQ != null and student.s_QQ != ''">
+				and s.s_QQ like "%"#{student.s_QQ}"%"
+			</if>
+			<if test="in_s_createTime != null and in_s_createTime != '' and en_s_createTime != null and en_s_createTime != ''">
+				and s.s_createTime between #{in_s_createTime} and #{en_s_createTime}
+			</if>
+		</where>
+		order by s.s_createTime desc
+		limit #{page},#{pageSize}
+	</select>
+	
+	<select id="selectStudentCount" parameterType="pagination" resultType="int">
+		select count(s.s_id) from student s left join asker a on s.s_askerId=a.a_id
+		<where>
+			<if test="student.s_id != null and student.s_id != ''">
+				and s.s_id =#{student.s_id}
+			</if>
+			<if test=" student.s_name != null and student.s_name != ''">
+				and s.s_name like "%"#{student.s_name}"%"
+			</if>
+			<if test="student.s_phone != null and student.s_phone != ''">
+				and s.s_phone like "%"#{student.s_phone}"%"
+			</if>
+			<if test="asker != null and asker != ''">
+				<if test="asker.a_name != null and asker.a_name != ''">
+					and a.a_name like "%"#{asker.a_name}"%"
+				</if>
+			</if>
+			<if test="student.s_isPay != null ">
+				and s.s_isPay =#{student.s_isPay}
+			</if>
+			<if test="student.s_isValid != null">
+				and s.s_isValid =#{student.s_isValid}
+			</if>
+			<if test="student.s_isReturnVisit != null and student.s_isReturnVisit != ''">
+				and s.s_isReturnVisit =#{student.s_isReturnVisit}
+			</if>
+			<if test=" student.s_QQ != null and student.s_QQ != ''">
+				and s.s_QQ like "%"#{student.s_QQ}"%"
+			</if>
+			<if test="in_s_createTime != null and in_s_createTime != '' ">
+				and s.s_createTime &gt;= #{in_s_createTime}
+			</if>
+			<if test="en_s_createTime != null and en_s_createTime != ''">
+				and s.s_createTime &lt;= #{en_s_createTime} 
+			</if>
+		</where>
+	</select>
+	
+	<insert id="insertStudent" parameterType="student">
+		insert into student(s_name,s_sex,s_age,s_askerId,s_phone,s_eduStatus,s_perStatus,s_comeWay,s_comeSite,s_sourceKeyWord,s_QQ,s_weiXin,s_isReport,s_createTime,s_remarks,s_importEmployee) 
+		values(#{s_name},#{s_sex},#{s_age},#{s_askerId},#{s_phone},#{s_eduStatus},#{s_perStatus},#{s_comeWay},#{s_comeSite},#{s_sourceKeyWord},#{s_QQ},#{s_weiXin},#{s_isReport},now(),#{s_remarks},#{s_importEmployee})
+
+	</insert>
+	
+	<delete id="deleteStudent" parameterType="int">
+		update student set s_isValid = 0 where s_id=#{s_id} 
+	</delete>
+	
+	<update id="updateStudent" parameterType="student">
+		update student s join asker a on s.s_askerId=a.a_id
+		<set>
+			
+			<if test="s_name != null and s_name != ''">
+				s.s_name = #{s_name},
+			</if>
+			<if test="s_record != null and s_record != ''">
+				s.s_record = #{s_record},
+			</if>
+			<if test="s_isValid != null">
+				s.s_isValid = #{s_isValid},
+			</if>
+			<if test="s_isReturnVisit != null">
+				s.s_isReturnVisit = #{s_isReturnVisit},
+			</if>
+			<if test="s_isHome != null">
+				s.s_isHome = #{s_isHome},
+			</if>
+			
+			<if test="s_age != null and s_age != ''">
+				s.s_age = #{s_age},
+			</if>
+			<if test="s_sex != null">
+				s.s_sex = #{s_sex},
+			</if>
+			<if test="s_phone != null and s_phone != ''">
+				s.s_phone = #{s_phone},
+			</if>
+			<if test="s_eduStatus != null">
+				s.s_eduStatus = #{s_eduStatus},
+			</if>
+			<if test="s_perStatus != null and s_perStatus != ''">
+				s.s_perStatus = #{s_perStatus},
+			</if>
+			<if test="s_comeWay != null and s_comeWay != ''">
+				s.s_comeWay = #{s_comeWay},
+			</if>
+			<if test="s_comeSite != null and s_comeSite != ''">
+				s.s_comeSite = #{s_comeSite},
+			</if>
+			<if test="s_sourceKeyWord != null and s_sourceKeyWord != ''">
+				s.s_sourceKeyWord = #{s_sourceKeyWord},
+			</if>
+			
+			<if test="s_address != null and s_address != ''">
+				s.s_address = #{s_address},
+			</if>
+			<if test="s_fromPart != null and s_fromPart != ''">
+				s.s_fromPart = #{s_fromPart},
+			</if>
+			<if test="s_QQ != null and s_QQ != ''">
+				s.s_QQ = #{s_QQ},
+			</if>
+			<if test="s_weiXin != null and s_weiXin != ''">
+				s.s_weiXin = #{s_weiXin},
+			</if>
+			
+			<if test="s_isReport != null">
+				s.s_isReport = #{s_isReport},
+			</if>
+			<if test="s_focus != null and s_focus != ''">
+				s.s_focus = #{s_focus},
+			</if>
+			<if test="s_isReturnMoney != null">
+				s.s_isReturnMoney = #{s_isReturnMoney},
+			</if>
+			<if test="s_isInClass != null ">
+				s.s_isInClass = #{s_isInClass},
+			</if>
+			
+			<if test="s_isValid != null ">
+				s.s_isValid = #{s_isValid},
+			</if>
+			<if test="s_isPay != null">
+				s.s_isPay = #{s_isPay},
+			</if>
+			<if test="asker != null and asker != ''">
+				<if test="a_name != null ">
+					a.a_name = #{a_name},
+				</if>
+			</if>
+			<if test="s_importEmployee != null ">
+				s.s_importEmployee = #{s_importEmployee}
+			</if>	
+		</set>
+		<where>
+			s.s_id=#{s_id}
+		</where>
+	</update>
+	
+
+	
+	<insert id="insertNetFoll" parameterType="netfollow">
+		insert INTO 
+		netfollow(n_stuId,n_stuName,n_followTime,n_nextFollowTime,n_context,e_id,n_followType,n_followStatus,n_createTime)
+		VALUES(#{n_stuId},#{n_stuName},#{n_followTime},#{n_nextFollowTime},#{n_context},#{e_id},#{n_followType},#{n_followStatus},#{n_createTime})
+	</insert>
+	
+	<select id="selectIsAutoDistributionOpen" resultType="_int">
+	   select count(1) from checkstatus where cs_name = '自动分量' and cs_status = 1
+	</select>
+	
+</mapper>
+

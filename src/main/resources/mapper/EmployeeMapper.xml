@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ysd.crm.dao.EmployeeMapper">
+	<select id="selectEmployeeAll" parameterType="pagination" resultType="employee">
+		select e_id,e_loginName,e_isLockOut,e_lastLoginTime,e_createTime,e_pwdWrongTime,e_lockTime,e_protectEmail,e_protectMTel,e_liveAddress,e_sex,e_age,e_photo,e_isMarry,e_fromAddress,e_eduStatus,e_weiXin,e_inCompanyTime from employee 
+		<where>
+			<if test="employee.e_loginName != null and employee.e_loginName != ''">
+				and e_loginName like "%"#{employee.e_loginName}"%"
+			</if>
+			<if test="in_e_createTime != null and in_e_createTime != '' ">
+				and e_createTime &gt;= #{in_e_createTime}
+			</if>
+			<if test="en_e_createTime != null and en_e_createTime != ''">
+				and e_createTime &lt;= #{en_e_createTime} 
+			</if>
+			<if test="employee.e_isLockOut != null">
+				and e_isLockOut=#{employee.e_isLockOut} or e_isLockOut is null
+			</if>
+			 
+		</where>
+		order by e_createTime desc,e_lastLoginTime desc
+		limit #{page},#{pageSize}
+	</select>
+	<select id="selectEmployeeCount" parameterType="pagination" resultType="int">
+		select count(e_id) from employee 
+		<where>
+			<if test="employee.e_loginName != null and employee.e_loginName != ''">
+				and e_loginName like "%"#{employee.e_loginName}"%"
+			</if>
+			<if test="in_e_createTime != null and in_e_createTime != '' ">
+				and e_createTime &gt;= #{in_e_createTime}
+			</if>
+			<if test="en_e_createTime != null and en_e_createTime != ''">
+				and e_createTime &lt;= #{en_e_createTime} 
+			</if>
+			<if test="employee.e_isLockOut != null">
+				and e_isLockOut=#{employee.e_isLockOut} or e_isLockOut is null
+			</if>
+		</where>
+		order by e_createTime desc,e_lastLoginTime desc
+	</select>
+	<delete id="deleteEmployee" parameterType="int">
+		delete from employee where e_id=#{e_id}
+	</delete>
+	<update id="updateEmployee" parameterType="employee">
+		update employee
+		<set>
+			<if test="e_protectEmail != null and e_protectEmail != ''">
+				e_protectEmail=#{e_protectEmail},
+			</if>
+			<if test="e_protectMTel != null and e_protectMTel != ''">
+				e_protectMTel=#{e_protectMTel},
+			</if>
+		</set>
+		<where>
+			
+			e_loginName=#{e_loginName}
+		</where>
+	</update>
+	
+	<select id="selectAllRole" resultType="role">
+	   select r.* from role r 
+	</select>
+	
+	<select id="selectEmployeeRoleByName" parameterType="employee" resultType="role">
+	   select r.* from employee e inner join employeerole er on e.e_id = er.e_id inner join role r on er.r_id = r.r_id
+	   where e.e_loginName = #{e_loginName}
+	</select>
+	
+	<insert id="insertRoleForEmployee" parameterType="employeeRole">
+	   insert into employeerole(e_id,r_id) values(#{e_id},#{r_id})
+	</insert>
+	
+	<delete id="deleteRoleForEmployee" parameterType="employeeRole">
+	   delete from employeerole where e_id = #{e_id} and r_id = #{r_id}
+	</delete>
+	
+	<update id="updateEmployeePassword" parameterType="employee">
+	   update employee set e_passWord = #{e_passWord} where e_loginName = #{e_loginName}
+	</update>
+	
+	<select id="selectFingerprintNumByLoginName" parameterType="employee" resultType="string">
+        select e_fingerprintNum from employee where e_loginName = #{e_loginName}
+    </select>
+    
+    <update id="updateEmployeeLock" parameterType="employee">
+        update employee set e_isLockOut = 1 where e_loginName = #{e_loginName}
+    </update>
+    
+    <update id="updateEmployeeUnLock" parameterType="employee">
+        update employee set e_isLockOut = 0 where e_loginName = #{e_loginName}
+    </update>
+	<select id="selectGenJinStudentCountById" parameterType="int" resultType="int">
+			SELECT count(s.s_id) FROM employee e INNER JOIN asker a on e.e_loginName =a.a_name INNER JOIN student s on a.a_id=s.s_askerId where e.e_id=#{id} and s.s_isValid=1 and s.s_isPay =0
+	</select>
+	<insert id="addAsker" parameterType="asker">
+			insert into asker(a_name,a_roleName) values(#{a_name},#{a_roleName})
+	</insert>
+	<delete id="deleteAskerByName" parameterType="string">
+			delete from asker where  a_name= #{param1} and a_roleName= #{param2} 
+	</delete>
+	<select id="selectWeiSuoDingCount" resultType="int">
+			select count(1) from employee where e_isLockOut=0
+	</select>
+	<select id="selectSuoDingCount" resultType="int">
+			select count(1) from employee where e_isLockOut=1
+	</select>
+	<select id="selectRoleByEmpName" parameterType="string" resultType="string">
+			SELECT r.r_name FROM employee e INNER JOIN employeerole er on  e.e_id=er.e_id INNER JOIN role r on er.r_id=r.r_id WHERE e.e_loginName=#{name} limit 1
+	</select>
+	<select id="selectQianDaoRenShu" resultType="int">
+			select count(1) from employee where e_ext4=1 or e_ext4=2
+	</select>
+	<select id="selectWeiQianDaoRenShu" resultType="int">
+			select count(1) from employee where e_ext4=3
+	</select>
+	<select id="selectStudentByEmpName" parameterType="string" resultType="int">
+			select count(s.s_id) from employee e INNER JOIN asker a on e.e_loginName=a.a_name  INNER JOIN student s  on a.a_id=s.s_askerId  WHERE e.e_loginName=#{name}
+	</select>
+	<select id="selectStudentLuiShiByEmpName" parameterType="string" resultType="int">
+			select count(s.s_id) from employee e INNER JOIN asker a on e.e_loginName=a.a_name  INNER JOIN student s  on a.a_id=s.s_askerId  WHERE e.e_loginName=#{name} and s.s_isValid=0
+	</select>
+	<select id="selectStudentLuRuByEmpName" parameterType="string" resultType="int">
+			select count(s.s_id) from employee e INNER JOIN asker a on e.e_loginName=a.a_name  INNER JOIN student s  on a.a_id=s.s_askerId  WHERE e.e_loginName=#{name} and s.s_isPay=1
+	</select>
+	<select id="selectStudentAddByEmpName" parameterType="string" resultType="int">
+			select count(s.s_id) from employee e INNER JOIN  student s  on e.e_loginName=s.s_importEmployee WHERE e.e_loginName=#{name}
+	</select>
+	<select id="selectStudentAddLiuShuByEmpName" parameterType="string" resultType="int">
+			select count(s.s_id) from employee e INNER JOIN  student s  on e.e_loginName=s.s_importEmployee WHERE e.e_loginName=#{name} and s.s_isValid=0
+	</select>
+	<select id="selectStudentAddLuRuByEmpName" parameterType="string" resultType="int">
+			select count(s.s_id) from employee e INNER JOIN  student s  on e.e_loginName=s.s_importEmployee WHERE e.e_loginName=#{name} and s.s_isPay=1
+	</select>
+	<select id="selectemployeeroleCount" resultType="int">
+			select count(er_id) from employeerole
+	</select>
+	<select id="selectStudentByIdEmpName" parameterType="int" resultType="string">
+			select e.e_loginName from employee e INNER JOIN asker a on e.e_loginName=a.a_name  INNER JOIN student s  on a.a_id=s.s_askerId  WHERE s.s_id=#{id}
+	</select>
+	<insert id="insertMessage" parameterType="message">
+			insert into message(e_sendName,e_acceptName,m_sendTime,m_content,m_ext1) values(#{e_sendName},#{e_acceptName},now(),#{m_content},'未读')
+	</insert>
+	<select id="selectEmpByName" parameterType="string" resultType="message">
+			select * from message where e_acceptName=#{name} and m_ext1 = "未读"
+	</select>
+	<select id="updataMessageById" parameterType="int">
+			update message set m_ext1 = "已读" where  m_id= #{id}
+	</select>
+</mapper>
