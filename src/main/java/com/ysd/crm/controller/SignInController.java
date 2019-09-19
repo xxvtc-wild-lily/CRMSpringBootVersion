@@ -1,7 +1,10 @@
 package com.ysd.crm.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -23,6 +26,7 @@ import com.ysd.crm.service.SignInService;
 import com.ysd.crm.util.IndustrySMS;
 import com.ysd.crm.util.PasswordUtil;
 import com.ysd.crm.util.RandomValidateCode;
+import com.ysd.crm.util.TokenUtil;
 
 @Controller
 public class SignInController {
@@ -62,7 +66,7 @@ public class SignInController {
     
     @RequestMapping(value="/inIndex",method=RequestMethod.GET)
     public String inIndex() {
-        return "view/index";
+        return "http://127.0.0.1:8020/CRMSpringBootVersion/index.html";
     }
     
     @RequestMapping(value="/inModule",method=RequestMethod.GET)
@@ -139,11 +143,14 @@ public class SignInController {
     // 登录的方法
     @RequestMapping(value="/signin",method=RequestMethod.POST)
     @ResponseBody
-    public String signin(HttpServletRequest request,HttpServletResponse response,Employee employee) {
+    public List signin(HttpServletRequest request,HttpServletResponse response,Employee employee) {
         
+    	List list = new ArrayList();
+    	
         // 传回去的状态码
         Integer statusCode = 0;
-        
+        // 设置token
+        String token = "";
         // 处理传过来的登录名、密码
         employee.setE_loginName(request.getParameter("e_loginName"));
         employee.setE_passWord(request.getParameter("e_passWord"));
@@ -157,6 +164,8 @@ public class SignInController {
         // 距离账号锁定剩余的机会
         Integer lastLoginChance = 3;
         
+        System.out.println("后台" + verificationCode);
+        System.out.println("前台" + verifyCode);
         // 验证验证码是否输入正确
         if(verifyCode.equalsIgnoreCase(verificationCode)){
             
@@ -221,11 +230,12 @@ public class SignInController {
                             // 放入用户类
                             employee.setE_id(e_id);
                             // 将登录信息赋到session里
-                            session.setAttribute("employee",employee);
+                            // session.setAttribute("employee",employee);
                             
                             // 将用户名放入application中
-                            application.setAttribute(employee.getE_loginName(),employee.getE_loginName());
-                            
+                            // application.setAttribute(employee.getE_loginName(),employee.getE_loginName());
+                            token = TokenUtil.createToken(e_id.toString(), employee.getE_loginName(), new Date());
+                            System.out.println(token);
                             statusCode = 1;
                             }
                         } else {
@@ -273,9 +283,16 @@ public class SignInController {
             statusCode = 5;
         }
         
-        String res = "{"+"loginStatusCode:"+statusCode+","+"lastLoginChance:"+lastLoginChance+"}";
+        // String res = "{"+"loginStatusCode:"+statusCode+","+"lastLoginChance:"+lastLoginChance+","+"token:"+token+"}";
+        // String res = "{"+"loginStatusCode:"+statusCode+","+"lastLoginChance:"+lastLoginChance+"}";
         
-        return res;
+        list.add(statusCode);
+        list.add(lastLoginChance);
+        list.add(token);
+        list.add(employee.getE_loginName());
+        list.add(employee.getE_id());
+        
+        return list;
     }
     
     @RequestMapping(value="errorClose",method=RequestMethod.POST)

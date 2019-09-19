@@ -1,7 +1,10 @@
-package com.ysd.crm.util;
+﻿package com.ysd.crm.util;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
@@ -13,6 +16,20 @@ import io.jsonwebtoken.SignatureAlgorithm;
  */
 public class TokenUtil {
 	private static String secretKey ="哈哈";
+ * 依赖：
+ * 		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt</artifactId>
+			<version>0.6.0</version>
+		</dependency>
+ * 
+ * 
+ * token工具类
+ * @author yangjun
+ *
+ */
+public class TokenUtil {
+	private static String secretKey ="123";
 	/**
 	 * 根据用户名以及用户id生成token
 	 * @param name 用户名
@@ -21,6 +38,7 @@ public class TokenUtil {
 	 * @return token字符串
 	 */
 	public static String createToken(String name,String id,Date lastLoginTime) {
+	public static String createToken(String id,String name,Date lastLoginTime) {
 		JwtBuilder builder = Jwts.builder()
 							//设置id
 							 .setId(id) 
@@ -34,6 +52,7 @@ public class TokenUtil {
 							 .signWith(SignatureAlgorithm.HS256, secretKey.getBytes())
 							//设置自定义属性，可添加多个键值对
 							 .claim("role", "admin")
+							.claim("secretKey", secretKey)
 				;
 		return builder.compact();
 	}
@@ -63,4 +82,5 @@ public class TokenUtil {
 		
 		
 	}
+
 }
