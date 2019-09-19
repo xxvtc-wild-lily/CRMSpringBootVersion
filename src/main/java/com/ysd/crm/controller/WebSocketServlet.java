@@ -43,6 +43,8 @@ public class WebSocketServlet {
 		 */
 		this.session=session;
 		this.name=name;
+		System.out.println(name);
+		System.out.println(session);
 		map.put(name, this);
 		count++;
        //开启一个线程对数据库中的数据进行轮询
