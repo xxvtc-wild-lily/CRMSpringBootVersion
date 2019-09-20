@@ -286,11 +286,15 @@ public class SignInController {
         // String res = "{"+"loginStatusCode:"+statusCode+","+"lastLoginChance:"+lastLoginChance+","+"token:"+token+"}";
         // String res = "{"+"loginStatusCode:"+statusCode+","+"lastLoginChance:"+lastLoginChance+"}";
         
+        System.out.println(token);
+        
         list.add(statusCode);
         list.add(lastLoginChance);
         list.add(token);
         list.add(employee.getE_loginName());
         list.add(employee.getE_id());
+        
+        
         
         return list;
     }

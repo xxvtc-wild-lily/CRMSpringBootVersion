@@ -23,7 +23,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
  *
  */
 public class TokenUtil {
-	private static String secretKey ="123";
+	private static String secretKey ="哈哈";
 	/**
 	 * 根据用户名以及用户id生成token
 	 * @param name 用户名
