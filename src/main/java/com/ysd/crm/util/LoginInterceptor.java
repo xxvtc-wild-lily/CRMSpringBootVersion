@@ -4,11 +4,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import io.jsonwebtoken.Claims;
 
+@Component
 public class LoginInterceptor implements HandlerInterceptor{
 	 @Override
 	    public void afterCompletion(HttpServletRequest arg0, HttpServletResponse arg1, Object arg2, Exception arg3)
@@ -45,13 +47,11 @@ public class LoginInterceptor implements HandlerInterceptor{
 	    	System.out.println("进入拦截器");
 	    	
 	    	String token = request.getParameter("token");
+	    	System.out.println("token=" + token);
 	    	
-	    	Claims parserTonken = TokenUtil.parserTonken(token);
-	    	
-	    	String a = (String) parserTonken.get("secretKey");
-	    	
-	    	System.out.println(a.toString());
-	    	
+	    	if (TokenUtil.parserTonken(token).get("secretKey").equals("哈哈")) {
+	    		return true;
+	    	}
 	        
 	        return false;
 	    }
